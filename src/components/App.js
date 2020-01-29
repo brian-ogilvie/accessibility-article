@@ -1,8 +1,19 @@
 import React from 'react';
+import InfoButton from './InfoButton';
 
-export default () => (
-  <>
-    <h1>Welcome to React Parcel Micro App!</h1>
-    <p>Hard to get more minimal than this React app.</p>
-  </>
-);
+export default function App() {
+  return (
+    <>
+      <main>
+        <h1>Accessibility using React Hooks</h1>
+        <p>
+          Today we&rsquo;re going to learn some basics of accessibility, or
+          #A11Y
+          <InfoButton onClick={() => console.log('Info Button clicked.')} />
+          How could we utilize React hooks (and some common sense) to help our
+          apps comply with best practices?
+        </p>
+      </main>
+    </>
+  );
+}

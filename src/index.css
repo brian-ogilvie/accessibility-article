@@ -1,0 +1,33 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 18px;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+main {
+  padding: 25px;
+  margin: 0 auto;
+  max-width: 900px;
+}
+
+.InfoButton {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin: 0 5px 0 2px;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+p {
+  line-height: 1.25em;
+}

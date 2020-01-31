@@ -93,7 +93,7 @@ export default function InfoButton({ onClick }) {
     {*/ Etc... */}
 ```
 
-Now if you followed this solution, you could be forgiven for thinking that accessibility is a giant pain, requiring a lot of extra code. The reason you feel that way is that we picked the wrong tool for the job. We've broken the rule in my second bullet point above. This element is meant to behave like a button, so let's use a real button. 
+This will work, but if you followed this solution, you could be forgiven for thinking that accessibility is a giant pain, requiring a lot of extra code. The reason you feel that way is that we picked the wrong tool for the job. We've broken the rule in my second bullet point above. This element is meant to behave like a button, so let's use a real button. 
 
 ### A Far Better Solution
 
@@ -109,4 +109,30 @@ export default function InfoButton({ onClick }) {
 }
 ```
 
-Go ahead 
+Go ahead and test it out in the browser. No mouse allowed! Works perfectly! Buttons, right out of the box, give us keyboard fucus and can be triggered by the `Enter` or `space` key. There is no reason that we, as developers, should waste our time reinventing this behavior. If you take nothing else away from this article, remember this: **If it seems hard to provide accessibility for your site interactions, there's a good chance you're doing it wrong.**
+
+## A More Complex Problem
+
+So now that we've solved something simple, let's move ahead and build out our info modal. Instead of building it first and then circling back to make sure it's accessible, we're going to take the far easier path and consider accessibility before we write a single line of code. 
+
+First off, let's get really clear on what a modal is and how it should behave. I've pulled the following highlights from [Material.io](https://material.io)
+
+Description:
+
+- A modal appears in front of app content.
+- A modal disables all app functionality while visible.
+- A modal on screen until confirmed, dismissed, or a required action has been taken.
+- Surfaces behind the modal are scrimmed, making content on the surface less prominent.
+
+Modals can be dismissed by:
+
+- Clicking on the scrim.
+- Clicking on a "Cancel" or "Close" button.
+
+According to [w3.org](https://www.w3.org/TR/wai-aria-practices/examples/dialog-modal/dialog.html), accessible modals should also:
+
+- Provide Focus to the first interactive element within the body. This prevents screen readers from being stuck in the underlying content.
+- On being dismissed, return focus to where it was before the modal was presented. 
+- Be dismissed by pressing the `ESC` key.
+
+Alright, with all of that in mind, let's build it. 

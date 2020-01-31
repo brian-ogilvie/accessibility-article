@@ -3,7 +3,7 @@ import React from 'react';
 export default function A11YContent() {
   return (
     <div>
-      <h2>What does the term A11Y mean?</h2>
+      <h2 className="Modal__title">What does the term A11Y mean?</h2>
       <p>
         In short, A11Y means &ldquo;accessibility&rdquo;. A11Y is what is known
         as a numeronym, which is somewhat similar to an acronym. Unlike an

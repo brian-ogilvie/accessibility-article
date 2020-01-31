@@ -26,8 +26,55 @@ main {
   padding: 0;
   border: none;
   background: transparent;
+  cursor: pointer;
 }
 
 p {
   line-height: 1.25em;
+}
+
+.Modal__scrim {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  background-color: rgba(50, 50, 50, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 24;
+  animation: 0.2s linear fade-in;
+}
+
+.Modal__content {
+  width: 700px;
+  max-width: 90vw;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  background-color: white;
+  position: relative;
+  padding: 15px 25px;
+  animation: 0.2s linear 0.2s both fade-in;
+}
+
+.close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+}
+
+.Modal__title {
+  margin-top: 0;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

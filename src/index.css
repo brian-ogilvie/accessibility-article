@@ -20,8 +20,8 @@ main {
 
 .InfoButton {
   display: inline-block;
-  width: 1em;
-  height: 1em;
+  width: 0.9rem;
+  height: 0.9rem;
   margin: 0 5px 0 2px;
   padding: 0;
   border: none;

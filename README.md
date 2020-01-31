@@ -62,3 +62,51 @@ Once that's done, let's check out the starter branch and fire up the dev server:
 git checkout starter
 yarn start
 ```
+
+You can view the app in your browser at `localhost:1234`.
+
+Here's the design we've been given: Our main page includes the term "A11Y", which many users might not recognize or understand. To help out those users, we've provided an info (<img src="https://res.cloudinary.com/brian-ogilvie/image/upload/v1580478144/Random%20GitHub/info-circle-solid.svg" alt="info " width="14" />) icon next to the term. Clicking on the icon should present a modal containing further information. We haven't built the modal yet, but we have added the click handler on the info button. 
+
+With your JavaScript console open in your browser, go ahead and confirm that it's working by clicking on the info icon. You should see "Info Button clicked" printed to the console. It's working? Great! Now, do me a favor and trigger that same event without using your mouse or trackpad. I'll wait...
+
+By now, you've realized that this is impossible. The info button can't be selected by pressing anything on the keyboard. And even if you could get it focussed, nothing you press on the keyboard would actually trigger the click event. This is a major problem for the accessibility of our page. So how do we solve it? Let's open up `components/InfoButton.js` and take a look.
+
+### One Possible Solution
+
+This button needs to be tabbable, so we could add `tabIndex="0"` to the containing `span` tag. That takes care of getting it focussed, but we still can't actually click it. To solve that problem, we could add a `keypress` handler to the `span` as well. Then we could check whether the key that got pressed was either `Enter` or the spacebar and, if so, call the click handler. That code would look something like this:
+
+```
+export default function InfoButton({ onClick }) {
+  function handleKeyPress({ key }) {
+    if (key === 'Enter' || key === ' ') {
+      onClick();
+    }
+  }
+
+  return (
+    <span
+      tabIndex="0"
+      className="InfoButton"
+      onKeyPress={handleKeyPress}
+      onClick={onClick}
+    >
+    {*/ Etc... */}
+```
+
+Now if you followed this solution, you could be forgiven for thinking that accessibility is a giant pain, requiring a lot of extra code. The reason you feel that way is that we picked the wrong tool for the job. We've broken the rule in my second bullet point above. This element is meant to behave like a button, so let's use a real button. 
+
+### A Far Better Solution
+
+Delete all that extra junk we just wrote. All we need to do here is to turn this `span` tag into a `button` tag with a type attribute. So here's our fully accessible InfoButton component with only one small change: 
+
+```
+export default function InfoButton({ onClick }) {
+  return (
+    <button type="button" className="InfoButton" onClick={onClick}>
+      {/* SVG code */}
+    </button>
+  );
+}
+```
+
+Go ahead 

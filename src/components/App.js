@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import InfoButton from './InfoButton';
 import Modal from './Modal';
 import A11YContent from './A11YContent';
-import RandomLinks from './RandomLinks';
+import Resources from './Resources';
 
 export default function App() {
   const [modalVisble, setModalVisible] = useState(false);
@@ -18,13 +18,13 @@ export default function App() {
           How could we utilize React hooks (and some common sense) to help our
           apps comply with best practices?
         </p>
-        <RandomLinks />
-        {modalVisble && (
-          <Modal onDismiss={() => setModalVisible(false)}>
-            <A11YContent />
-          </Modal>
-        )}
       </main>
+      <Resources />
+      {modalVisble && (
+        <Modal onDismiss={() => setModalVisible(false)}>
+          <A11YContent />
+        </Modal>
+      )}
     </>
   );
 }

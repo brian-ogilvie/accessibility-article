@@ -1,8 +1,9 @@
 import React from 'react';
 
-export default function RandomLinks() {
+export default function Resources() {
   return (
-    <div>
+    <div className="Resources">
+      <h2>Resources:</h2>
       <ul className="random-links">
         <li>
           <a tabIndex="0" href="https://a11yproject.com/">

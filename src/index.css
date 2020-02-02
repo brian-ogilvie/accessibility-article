@@ -70,6 +70,12 @@ p {
   margin-top: 0;
 }
 
+.Resources {
+  padding: 0 25px;
+  margin: 0 auto;
+  max-width: 900px;
+}
+
 .random-links {
   list-style: none;
   padding: 0;

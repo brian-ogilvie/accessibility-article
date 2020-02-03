@@ -189,4 +189,21 @@ And let's show it only when our `modalVisible` state property is `true`. Just be
 )}
 ```
 
-Save that, and let's return to our browser to check whether it's working. Click the info button: the modal appears. Click the close button: the modal goes away. Awesome! We have fulfilled our two of our requirements from above: the modal appears above app content, and it can be dismissed by clicking the close button. 
+Save that, and let's return to our browser to check whether it's working. Click the info button: the modal appears. Click the close button: the modal goes away. Awesome! We have fulfilled our two of our requirements from above: the modal appears above app content, and it can be dismissed by clicking the close button. Let's move on.
+
+## Step 2: Transfer Focus
+
+From here on out, let's agree to something: We will only interact with our app, using the keyboard. No mouse. No trackpad. With that in mind. Let's render and dismiss our modal again. For good measure, refresh the page first (`COMMAND + R`) so that all our keyboard fucus is set back to the top of the DOM. You should find that getting the modal onto the screen is easy: press TAB to highlight the info button and then press Enter or space. Awesome! Now, tab to the close button. 
+
+Oops.
+
+See the problem? Our keyboard focus isn't where it belongs. It's stuck in the underlying app content. As you press TAB, you don't get the close button, you have to first tab through all of the links in the footer. Imagine if our page was super complicated, with a bunch of links, menus, and buttons. That would take forever. If you were a user who relied on your keyboard without a mouse, you'd be pretty annoyed right now. Worse, if you relied on a screen reader (i.e. you couldn't actually see the page), you would have no way of knowing that this modal even existed right now. Your screen ready would go right on traversing the DOM as though nothing had changed. 
+
+To fix this issue, it's time to write our first custom hook. First, if it doesn't already exist, create a `hooks` directory inside of `src`:
+
+```
+mkdir src/hooks
+```
+
+Inside our hooks directory, let's create a new file called `useFocusTransfer.js`. To build this hook, we're going to take advantage of React's `useEffect` hook. `useEffect` allows us to perform a side effect in our app when certain conditions are met or when certain dependencies change. If we return a function from our effect hook, that function will run as cleanup before the next running of the effect or when our component leaves the DOM. This is similar to a combination of the old `componentDidMount`, `componentDidUpdate`, and `componentWillUnmount` methods from class-based components all rolled into one awesome function.
+

@@ -1,9 +1,9 @@
 import React from 'react';
 
-export default function Resources() {
+export default function Footer() {
   return (
-    <div className="Resources">
-      <h2>Resources:</h2>
+    <div className="Footer">
+      <h2 className="Footer__heading">Resources:</h2>
       <ul className="random-links">
         <li>
           <a tabIndex="0" href="https://a11yproject.com/">

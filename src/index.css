@@ -16,6 +16,7 @@ main {
   padding: 25px;
   margin: 0 auto;
   max-width: 900px;
+  min-height: calc(100vh - 100px);
 }
 
 .InfoButton {
@@ -70,10 +71,15 @@ p {
   margin-top: 0;
 }
 
-.Resources {
-  padding: 0 25px;
+.Footer {
+  padding: 0 25px 25px;
   margin: 0 auto;
   max-width: 900px;
+  height: 100px;
+}
+
+.Footer__heading {
+  margin-top: 0;
 }
 
 .random-links {
@@ -81,6 +87,7 @@ p {
   padding: 0;
   display: flex;
   justify-content: flex-start;
+  margin-bottom: 0;
 }
 
 .random-links > li:not(:first-of-type) {

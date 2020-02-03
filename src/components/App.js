@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
+import Footer from './Footer';
 import InfoButton from './InfoButton';
 import Modal from './Modal';
 import A11YContent from './A11YContent';
-import Resources from './Resources';
 
 export default function App() {
   const [modalVisble, setModalVisible] = useState(false);
 
   return (
-    <>
+    <div className="App">
       <main>
         <h1>Accessibility using React Hooks</h1>
         <p>
@@ -19,12 +19,12 @@ export default function App() {
           apps comply with best practices?
         </p>
       </main>
-      <Resources />
+      <Footer />
       {modalVisble && (
         <Modal onDismiss={() => setModalVisible(false)}>
           <A11YContent />
         </Modal>
       )}
-    </>
+    </div>
   );
 }

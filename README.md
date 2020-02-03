@@ -10,6 +10,10 @@ As developers, how can we use React hooks and a good dose of common sense to qui
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/b5275cbe-3532-4b2e-b47d-d2cf9d884d3c/deploy-status)](https://app.netlify.com/sites/accessibility-hooks/deploys)
 
+## Background
+
+We are going to be getting into some deeper usage of React hooks in this article, so a basic understanding of what they are and how to use them is recommended. Click the link to read more about [React hooks](https://reactjs.org/docs/hooks-intro.html).
+
 ## Introduction
 
 Accessibility is an enormous topic, which often left me feeling overwhelmed when I began my journey as a developer. I had no idea where to start. I was always asking myself, "Now that I've built this thing, how do I make sure it's accessible?" The guidelines put out there are sprawling, and one could make an entire career out of monitoring accessibility alone (and many have). But assuming you just want to build cool stuff that everyone can use, let's cover some basics that will take care of 90% of all use cases while adding minimal stress to your development cycle. 
@@ -126,8 +130,8 @@ Description:
 
 Modals can be dismissed by:
 
-- Clicking on the scrim.
 - Clicking on a "Cancel" or "Close" button.
+- Clicking on the scrim.
 
 According to [w3.org](https://www.w3.org/TR/wai-aria-practices/examples/dialog-modal/dialog.html), accessible modals should also:
 
@@ -136,3 +140,53 @@ According to [w3.org](https://www.w3.org/TR/wai-aria-practices/examples/dialog-m
 - Be dismissed by pressing the `ESC` key.
 
 Alright, with all of that in mind, let's build it. 
+
+## Step 1: Structure our Modal Component
+
+The actual DOM structure of our component is dead simple. We'll have a scrim div that is fixed position, covering the whole window. Inside that, we'll have a container that provides the shape of the modal itself. The container will have a Close button and a spot for rendering children. That's all our Modal component will really have. It's only props are and `onDismiss`, which it will pass to the Close button's `onClick` method and the aforementioned `children` or content. By the way, if you're not familiar with the concept of children props in React, `children` is a reserved prop in React that reperesents anything between a component's openning and closing tags. For instance: 
+
+
+```
+<MyComponent>
+  <div>This div is accessible inside MyComponent as props.children</div>
+</MyComponent>
+```
+
+Go ahead and open up `components/Modal.js` to see that this structure is exactly what we just described. Dead simple. So let's get this thing on the screen and start adding our functionality.
+
+We're going to need a state property that dictates whether the modal is visible in our app, so let's add `useState` to our imports at the top of `App.js`:
+
+```
+import React, { useState } from 'react';
+```
+
+Then in the first line of our App component, let's set up our state property:
+
+```
+const [modalVisible, setModalVisible] = useState(false);
+```
+
+We'll need to replace the `onClick` method of our `InfoButton` with the following, to update that state property: 
+
+```
+<InfoButton onClick={() => setModalVisible(true)} />
+```
+
+With that set up, let's actually import our `Modal` component and our content and then render them to the DOM. To the bottom of our imports at the top of `App.js`, add the following:
+
+```
+import Modal from './components/Modal';
+import A11YContent from './components/A11YContent`;
+```
+
+And let's show it only when our `modalVisible` state property is `true`. Just below where `<Footer />` is rendered, before the Fragment closing tag `</>`, add the following:
+
+```
+{modalVisible && (
+  <Modal onDismiss={() => setModalVisible(false)}>
+    <A11YContent />
+  </Modal>
+)}
+```
+
+Save that, and let's return to our browser to check whether it's working. Click the info button: the modal appears. Click the close button: the modal goes away. Awesome! We have fulfilled our two of our requirements from above: the modal appears above app content, and it can be dismissed by clicking the close button. 

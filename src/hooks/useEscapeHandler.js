@@ -1,13 +1,13 @@
 import { useCallback, useEffect } from 'react';
 
-export default function useEscapeHandler(callback) {
+export default function useEscapeHandler(onEscape) {
   const handleEscape = useCallback(
     ({ key }) => {
       if (key === 'Escape') {
-        callback();
+        onEscape();
       }
     },
-    [callback]
+    [onEscape]
   );
 
   useEffect(() => {

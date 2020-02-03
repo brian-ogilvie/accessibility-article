@@ -3,7 +3,12 @@ import PropTypes from 'prop-types';
 
 export default function InfoButton({ onClick }) {
   return (
-    <button type="button" className="InfoButton" onClick={onClick}>
+    <button
+      type="button"
+      className="InfoButton"
+      aria-label="More Info"
+      onClick={onClick}
+    >
       <svg
         data-prefix="fas"
         data-icon="info-circle"

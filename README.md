@@ -205,5 +205,109 @@ To fix this issue, it's time to write our first custom hook. First, if it doesn'
 mkdir src/hooks
 ```
 
-Inside our hooks directory, let's create a new file called `useFocusTransfer.js`. To build this hook, we're going to take advantage of React's `useEffect` hook. `useEffect` allows us to perform a side effect in our app when certain conditions are met or when certain dependencies change. If we return a function from our effect hook, that function will run as cleanup before the next running of the effect or when our component leaves the DOM. This is similar to a combination of the old `componentDidMount`, `componentDidUpdate`, and `componentWillUnmount` methods from class-based components all rolled into one awesome function.
+Inside our hooks directory, let's create a new file called `useFocusTransfer.js`. To build this hook, we're going to take advantage of React's `useEffect` hook. `useEffect` allows us to perform a side effect in our app when certain conditions are met or when certain dependencies change. 
 
+This hook will take as it's only argument, a `ref` for the button we would like to move focus onto (more on this later). It will return nothing, simply performing our desired side effects. Here it is:
+
+```
+// hooks/useFocusTransfer.js
+
+import { useEffect } from 'react';
+
+export default function useFocusTransfer(transferToRef) {
+  useEffect(() => {
+    if (transferToRef.current) {
+      transferToRef.current.focus();
+    }
+  }, [transferToRef.current]);
+}
+```
+
+If you've never interacted with refs in React before, here are the basics. A `ref` gives us access to the actual html element that is painted to the DOM as a result of our React rendering code. The ref itself contains a `current` property that represents the DOM element. We use refs very sparingly because we usually want to let React handle all DOM querying and manipulation behind the scenes while we declaratively describe how the DOM should look, using JSX. However sometimes--now, for instance--we really do need a pointer to this button in the DOM becuase the `focus` method we want to call only exists on DOM nodes. It's important to note that the `current` property of our ref will be null until the DOM has been painted for the first time. That's why we need to check whether `transferToRef.current` exists before attempting to call the `.focus()` method. We add `transferToRef.current` to our `useEffect` dependency array, so that this hook will run as soon as that value changes. 
+
+Now let's implement our new custom hook and put it to use in our Modal component. Back in `Modal.js`, we'll need our hook and also `useRef`. Edit the first line to be:
+
+```
+import React, { useRef } from 'react';
+```
+
+And add this as the third import:
+
+```
+import useFocusTransfer from '../hooks/useFocusTransfer';
+```
+
+Now to use these, we'll first need to define the ref and pass it as an argument to our custom hook. Add the following to our component definition:
+
+```
+export default function Modal({ onDismiss, children }) {
+  const closeButton = useRef();
+  useFocusTransfer(closeButton);
+```
+
+And we'll need to tell React which DOM element we'd like to attach that ref to. Inside our return statement, add the ref as an attribute of the button:
+
+```
+<button
+  ref={closeButton}
+```
+
+Now that we've got it all set up, let's make sure it working. Back in the browser (remember keyboard only, no mouse) click the info button. The close button should be focussed inside the modal. Hitting return again should dismiss the modal. Works? Sweeeeeeet. 
+
+We're not quite done with transfering focus though. We also need to return the browser's focus to where it was before the Modal showed up. This is pretty easy to accomplish with another `useEffect`. One of the coolest features of `useEffect` is its built-in clean up. If we return a function from our effect hook, that function will run as "cleanup" before the next running of the effect or when our component leaves the DOM. In a way, `useEffect` is similar to a combination of the old `componentDidMount`, `componentDidUpdate`, and `componentWillUnmount` methods from class-based components all rolled into one awesome function.
+
+Back in `useFocusTransfer.js` let's add this before our other `useEffect`:
+
+```
+useEffect(() => {
+  const active = document.activeElement;
+  return () => {
+    if (active) active.focus();
+  };
+}, []);
+```
+
+`activeElement` represents the currently focussed element in the DOM (which might not exist under all circumstances). Notice the empty dependency array. We want this effect to run once and only once, when our component mounts. And we want the clean up function to run only once, when our component unmounts. Also, be sure that this effect comes before our other one. We need to get the reference to the active element before we shift focus to the close button. 
+
+Now if you run this in your browser, you should see the focus automatically shift to the close button when the modal appears and shift back to the info button when the modal leaves. Now we've prevented screen readers and users alike from getting disoriented or lost by our modal component. 
+
+## Step 3: Dimsiss on Escape
+
+This step is incredibly simple, requiring only a few lines of code. But because it's so common in an app (the need to dismiss a popup, menu, dropdown, alert, etc. when the escape button is pushed), that I always write a custom hook for it, and just use that everywhere and save myself some typing. Hooks are awesome, by the way.
+
+Let's create a new file `hooks/useEscapeHandler.js`, and write our hook:
+
+```
+import { useEffect, useCallback } from 'react';
+
+export default function useEscapeHandler(onEscape) {
+  const handleEscape = useCallback(
+    ({ key }) => {
+      if (key === 'Escape') onEscape();
+    },
+    [onEscape]
+  );
+  
+  useEffect(() => {
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [handleEscape]);
+}
+```
+
+When the component using this hook mounts, we attach a `keydown` event listener to the browser window. When a key is pressed, if that key is `Escape`, we execute whatever onEscape function was passed into our hook. In our case, that function will be dismissing the modal. When our component unmounts, `useEffect` removes our event listener from the window.
+
+What is `useCallback`, and why are we using it? This is a performance booster that React offers. It allows us essentially to memoize the definition of a function so that it doesn't get redefined as a new object every time this hook is called. That may seem like a small boost, but it this case it really matters. Our `useEffect` hook will have to run again, removing our window event listnener and adding a new one, every time `handleEscape` is redefined. Because interacting with the DOM is the slowest part of most web applications, we really don't want to do this any more than is absolutely necessary. Imagine this hook being used inside a component that also has a form inside it. That component's state will constantly be updating as the user types into the form, which will call our hook again and again. On every single keystroke, the window will have event listeners added and removed. This will absolutely murder the performance of your app. Don't be that guy. Use `useCallback`. PSA over. 
+
+Let's add our new escape handler to our modal. In `Modal.js`, add this as your fourth import:
+
+```
+import useEscapeHandler from '../hooks/useEscapeHandler';
+```
+
+And call it on the first line of our component definition:
+
+```
+export default function Modal({ onDismiss, children }) {
+  useEscapeHandler(onDismiss);
+```

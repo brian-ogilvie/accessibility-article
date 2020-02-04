@@ -311,3 +311,112 @@ And call it on the first line of our component definition:
 export default function Modal({ onDismiss, children }) {
   useEscapeHandler(onDismiss);
 ```
+
+Check it out in the broswer. Working? Nice! 
+
+## Step 4: Dismiss on Clicking the Scrim
+
+One could make the argument that this is not strictly an accessibility issue, but it does make for a much nicer experience for all users, especially users on a mobile device who don't want to have to reach their thumbs all the way up to the close button. And that's really what accessibility is all about: making a better experience for all users. 
+
+Though nominally, we want to dismiss the modal when the user clicks or taps the scrim, we actually just care if they tap anywhere outisde of our modal. So how do we detect a click that is NOT inside of a certain element. To figure that out, let's quicky discuss how broswer events are processed. When you click on a part of a web page, that click is recognized first by the most deeply nested element--say a paragraph or even a span tag--in the spot where you clicked. Then the event is processed by that element's parent element and then the parent element's parent element. The event continues bubbling upwards until it reaches the root of the document. This gives every single element inside which this click happened a chance to run any event handlers it may have. 
+
+The DOM exposes a really cool property that we can hook into from this event bubbling process: `event.target.closest()`. As an event propagates from its most deeply nested element all the way out to the root of the document, `.closest()` will return the first instance of whatever selector you request that the event bubbles through. If the event doesn't bubble through anything matching that selector, `.closest()` returns `null`. We're going to look for a `null` return to determine that a click has occured outside of our Modal element. Sort of hard to explain in concept, so let's see it in action. 
+
+As with our last step, this is something I use so commonly in apps that I always make a custom, resusable hook that tons of components can take advantage of. Let's create a new file in our `hooks` directory called `useOutsideClick`:
+
+```
+// hooks/useOutsideClick.js
+import { useEffect, useCallback } from 'react';
+
+export default function useOutsideClick(selector, onOutsideClick) {
+  const handleOutsideClick = useCallback(
+    ({ target }) => {
+      if (target.closest(selector) === null) {
+        onOutsideClick();
+      }
+    },
+    [selector, onOutsideClick]
+  );
+  
+  useEffect(() => {
+    window.addEventListener('click', handleOutsideClick);
+    return () => window.removeEventListener('click', handleOutsideClick);
+  }, [handleOutsideClick]);
+}
+```
+
+This is very similar in structure to our `useEscapeHandler` hook. The difference is in the body of our event handler function. We check whether `.closest()` returns `null` for our given selector. If so, the click has not occured inside that selector, so we execute the `outOutsideClick` function that we are given. 
+
+What is this `selector` we keep talking about? In our case, it will be the CSS class name of the div containing our modal content: `.Modal__content`. And we will pass in the function to dismiss the modal as the argument for `onOutsideClick`. Let's see how we use this in our Modal component. 
+
+Add this as your last import in `Modal.js`:
+
+```
+import useOutsideClick from '../hooks/useOutsideClick';
+```
+
+And implement it just under where we call our other two hooks:
+
+```
+useOutsideClick('.Modal__content', onDimsiss);
+```
+
+Spin her up and check it out. Well, congratulations, and nice work! You've now built a robust, accessible modal component that provides a very friendly experience for all users in the varying ways that people consume the web. If you're interested in a bonus, please read our final section.
+
+## Step 5: Code Cleanup
+
+If you've read any of my other artiles, you know that I'm a big fan of keeping React components concerned with presentation only. I don't want them performing a bunch of logic; I just want them to do their small part of displaying the current state of the app. This has never been more possible than it is now with React hooks. We've done a pretty good job so far in abstracting out our logic from the component. But I can't help thinking: What if I want to design a different modal for some other part of my app? I don't know. One with a pink border and a dancing unicorn animation over the scrim. When I build out that component, I will have to remember to import three separate hooks and use them correctly. What if I'm not the developer doing this? Some other developer will have to research the rules of how a modal is supposed to behave and then spend a bunch of time in our component understanding how to build it, and what the hooks do. You get the idea. 
+
+Wouldn't it be great if there was just one hook that encapsulated everything a modal component is supposed to do and if we could just use that one hook for any modal component we ever decide to build? I think so. Let's make one really quickly. Create a new file `hooks/useModal.js`. This hook is simply going to be a composition of the three hooks we already wrote:
+
+```
+// hooks/useModal.js
+import useEscapeHandler from './useEscapeHandler';
+import useOutsideClick from './useOutsideClick';
+import useFocusTransfer from './useFocusTransfer';
+
+export default function useModal(firstElementRef, contentSelector, onDismiss) {
+  useEscapeHandler(onDismiss);
+  useOutsideClick(contentSelector, onDismiss);
+  useFocusTransfer(firstElementRef);
+}
+```
+
+Now we can remove all those lines from our Modal component and replace them with the single hook. Here's our final code in `Modal.js`:
+
+```
+import React, { useRef } from 'react';
+import PropTypes from 'prop-types';
+import useModal from '../hooks/useModal';
+
+export default function Modal({ onDismiss, children }) {
+  const closeButton = useRef();
+  useModal(closeButton, '.Modal__content', onDismiss);
+
+  return (
+    <div className="Modal__scrim">
+      <div className="Modal__content">
+        <button
+          ref={closeButton}
+          type="button"
+          alt="Close Modal"
+          title="Close Modal"
+          className="close-button"
+          onClick={onDismiss}
+        >
+          X
+        </button>
+        {children}
+      </div>
+    </div>
+  );
+}
+```
+
+This may seem like an insignificant change, but it will make the live's of your team members much easier as your app grows and as new team members come on board. 
+
+Thanks for reading today! If you take nothing else away, please remember this: Considering accessibility as you build your app ultimately makes the user experience better for all your users. Now, go forth, and make the web awesome!
+
+## Notes:
+
+I was inspired to write this article after attending a talk by Magdalena Henke, who works for CBRE Build. She and her company are awesome, and her talk was excellent. You can find her on LinkedIn at [linkedin.com/in/magdalena-henke/](https://www.linkedin.com/in/magdalena-henke/).

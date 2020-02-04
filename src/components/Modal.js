@@ -4,7 +4,7 @@ import useModal from '../hooks/useModal';
 
 export default function Modal({ onDismiss, children }) {
   const closeButton = useRef();
-  useModal(closeButton, onDismiss);
+  useModal(closeButton, '.Modal__content', onDismiss);
 
   return (
     <div className="Modal__scrim">

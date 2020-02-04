@@ -26,7 +26,7 @@ Before we get into the code, there are a few tips I'll share that will make your
 
 ### ESLint Is Your Friend.
 
-The first thing I do with every single project is set up ESLint. Do yourself a favor, and don't skip this step. I don't need to memorize every single rule or guideline about accessibility, because my linter will let me know of problems in my code that I never anticipated. If you're using VSCode, install the ESLint extension, so that proplems in your code will be underlined in red as you type. Hovering over the problems will give you a brief explanation of the issue and how to fix it. 
+The first thing I do with every single project is set up ESLint. Do yourself a favor, and don't skip this step. I don't need to memorize every single rule or guideline about accessibility, because my linter will let me know of problems in my code that I never anticipated. If you're using VSCode, install the ESLint extension, so that problems in your code will be underlined in red as you type. Hovering over the problems will give you a brief explanation of the issue and how to fix it. 
 
 So how do I configure it? There is an awesome command line tool for setting up ESLint in your project:
 
@@ -44,7 +44,7 @@ You can read more about how to configure your `.eslintrc` for A11Y alone [here](
 
 ### Use HTML5 Semantic Tags.
 
-A lot of people who are much smarter than I am have been working on web accessibility for a long time. As developers, we should stand on the shoulders of giants. To that end, we ought not make our lives harder by trying to re-invent the wheel in our apps. Use the html elements that have been gifted to us. Here are a few rules to keep in mind:
+A lot of people who are much smarter than I am have been working on web accessibility for a long time. As developers, we should stand on the shoulders of giants. To that end, we ought not make our lives harder by trying to reinvent the wheel in our apps. Use the html elements that have been gifted to us. Here are a few rules to keep in mind:
 
 - Headers (`h1`, `h2`, `h3`, etc.) should be used in descending order of importance and should never skip levels. Don't simply rely on font size to convey importance, because screen readers can't see that. The tags matter. My site name is an `h1`. Each page heading is an `h2`. Sections begin with an `h3`. You get the picture.
 - Use the right element for the job. If you need a button, use a `<button>`. Don't use a clickable `<div>`. This seems obvious, but you'd be amazed how often I see this done. More on this later.
@@ -77,7 +77,7 @@ By now, you've realized that this is impossible. The info button can't be select
 
 ### One Possible Solution
 
-This button needs to be tabbable, so we could add `tabIndex="0"` to the containing `span` tag. That takes care of getting it focussed, but we still can't actually click it. To solve that problem, we could add a `keypress` handler to the `span` as well. Then we could check whether the key that got pressed was either `Enter` or the spacebar and, if so, call the click handler. That code would look something like this:
+This button needs to be tabbable, so we could add `tabIndex="0"` to the containing `span` tag. That takes care of getting it focussed, but we still can't actually click it. To solve that problem, we could add a `keypress` handler and a `role` to the `span` as well. Then we could check whether the key that got pressed was either `Enter` or the spacebar and, if so, call the click handler. That code would look something like this:
 
 ```
 export default function InfoButton({ onClick }) {
@@ -90,6 +90,7 @@ export default function InfoButton({ onClick }) {
   return (
     <span
       tabIndex="0"
+      role="button"
       className="InfoButton"
       onKeyPress={handleKeyPress}
       onClick={onClick}
@@ -143,7 +144,7 @@ Alright, with all of that in mind, let's build it.
 
 ## Step 1: Structure our Modal Component
 
-The actual DOM structure of our component is dead simple. We'll have a scrim div that is fixed position, covering the whole window. Inside that, we'll have a container that provides the shape of the modal itself. The container will have a Close button and a spot for rendering children. That's all our Modal component will really have. It's only props are and `onDismiss`, which it will pass to the Close button's `onClick` method and the aforementioned `children` or content. By the way, if you're not familiar with the concept of children props in React, `children` is a reserved prop in React that reperesents anything between a component's openning and closing tags. For instance: 
+The actual DOM structure of our component is dead simple. We'll have a scrim div that is fixed position, covering the whole window. Inside that, we'll have a container that provides the shape of the modal itself. The container will have a Close button and a spot for rendering children. That's all our Modal component will really have. It's only props are and `onDismiss`, which it will pass to the Close button's `onClick` method and the aforementioned `children` or content. By the way, if you're not familiar with the concept of children props in React, `children` is a reserved prop in React that represents anything between a component's opening and closing tags. For instance: 
 
 
 ```
@@ -193,7 +194,7 @@ Save that, and let's return to our browser to check whether it's working. Click 
 
 ## Step 2: Transfer Focus
 
-From here on out, let's agree to something: We will only interact with our app, using the keyboard. No mouse. No trackpad. With that in mind. Let's render and dismiss our modal again. For good measure, refresh the page first (`COMMAND + R`) so that all our keyboard fucus is set back to the top of the DOM. You should find that getting the modal onto the screen is easy: press TAB to highlight the info button and then press Enter or space. Awesome! Now, tab to the close button. 
+From here on out, let's agree to something: We will only interact with our app, using the keyboard. No mouse. No trackpad. With that in mind. Let's render and dismiss our modal again. For good measure, refresh the page first (`COMMAND + R`) so that all our keyboard focus is set back to the top of the DOM. You should find that getting the modal onto the screen is easy: press TAB to highlight the info button and then press Enter or space. Awesome! Now, tab to the close button. 
 
 Oops.
 
@@ -252,9 +253,9 @@ And we'll need to tell React which DOM element we'd like to attach that ref to. 
   ref={closeButton}
 ```
 
-Now that we've got it all set up, let's make sure it working. Back in the browser (remember keyboard only, no mouse) click the info button. The close button should be focussed inside the modal. Hitting return again should dismiss the modal. Works? Sweeeeeeet. 
+Now that we have it all set up, let's make sure it works. Back in the browser (remember keyboard only, no mouse) click the info button. The close button should be focussed inside the modal. Hitting return again should dismiss the modal. Works? Sweeeeeeet. 
 
-We're not quite done with transfering focus though. We also need to return the browser's focus to where it was before the Modal showed up. This is pretty easy to accomplish with another `useEffect`. One of the coolest features of `useEffect` is its built-in clean up. If we return a function from our effect hook, that function will run as "cleanup" before the next running of the effect or when our component leaves the DOM. In a way, `useEffect` is similar to a combination of the old `componentDidMount`, `componentDidUpdate`, and `componentWillUnmount` methods from class-based components all rolled into one awesome function.
+We're not quite done with transferring focus though. We also need to return the browser's focus to where it was before the Modal showed up. This is pretty easy to accomplish with another `useEffect`. One of the coolest features of `useEffect` is its built-in clean up. If we return a function from our effect hook, that function will run as "cleanup" before the next running of the effect or when our component leaves the DOM. In a way, `useEffect` is similar to a combination of the old `componentDidMount`, `componentDidUpdate`, and `componentWillUnmount` methods from class-based components all rolled into one awesome function.
 
 Back in `useFocusTransfer.js` let's add this before our other `useEffect`:
 
@@ -271,7 +272,7 @@ useEffect(() => {
 
 Now if you run this in your browser, you should see the focus automatically shift to the close button when the modal appears and shift back to the info button when the modal leaves. Now we've prevented screen readers and users alike from getting disoriented or lost by our modal component. 
 
-## Step 3: Dimsiss on Escape
+## Step 3: Dismiss on Escape
 
 This step is incredibly simple, requiring only a few lines of code. But because it's so common in an app (the need to dismiss a popup, menu, dropdown, alert, etc. when the escape button is pushed), that I always write a custom hook for it, and just use that everywhere and save myself some typing. Hooks are awesome, by the way.
 
@@ -297,7 +298,7 @@ export default function useEscapeHandler(onEscape) {
 
 When the component using this hook mounts, we attach a `keydown` event listener to the browser window. When a key is pressed, if that key is `Escape`, we execute whatever onEscape function was passed into our hook. In our case, that function will be dismissing the modal. When our component unmounts, `useEffect` removes our event listener from the window.
 
-What is `useCallback`, and why are we using it? This is a performance booster that React offers. It allows us essentially to memoize the definition of a function so that it doesn't get redefined as a new object every time this hook is called. That may seem like a small boost, but it this case it really matters. Our `useEffect` hook will have to run again, removing our window event listnener and adding a new one, every time `handleEscape` is redefined. Because interacting with the DOM is the slowest part of most web applications, we really don't want to do this any more than is absolutely necessary. Imagine this hook being used inside a component that also has a form inside it. That component's state will constantly be updating as the user types into the form, which will call our hook again and again. On every single keystroke, the window will have event listeners added and removed. This will absolutely murder the performance of your app. Don't be that guy. Use `useCallback`. PSA over. 
+What is `useCallback`, and why are we using it? This is a performance booster that React offers. It allows us essentially to memoize the definition of a function so that it doesn't get redefined as a new object every time this hook is called. That may seem like a small boost, but in this case it really matters. Our `useEffect` hook will have to run again, removing our window event listener and adding a new one, every time `handleEscape` is redefined. Because interacting with the DOM is the slowest part of most web applications, we really don't want to do this any more than is absolutely necessary. Imagine this hook being used inside a component that also has a form inside it. That component's state will constantly be updating as the user types into the form, which will call our hook again and again. On every single keystroke, the window will have event listeners added and removed. This will absolutely murder the performance of your app. Don't be that guy. Use `useCallback`. PSA over. 
 
 Let's add our new escape handler to our modal. In `Modal.js`, add this as your fourth import:
 
@@ -312,17 +313,17 @@ export default function Modal({ onDismiss, children }) {
   useEscapeHandler(onDismiss);
 ```
 
-Check it out in the broswer. Working? Nice! 
+Check it out in the browser. Working? Nice! 
 
 ## Step 4: Dismiss on Clicking the Scrim
 
 One could make the argument that this is not strictly an accessibility issue, but it does make for a much nicer experience for all users, especially users on a mobile device who don't want to have to reach their thumbs all the way up to the close button. And that's really what accessibility is all about: making a better experience for all users. 
 
-Though nominally, we want to dismiss the modal when the user clicks or taps the scrim, we actually just care if they tap anywhere outisde of our modal. So how do we detect a click that is NOT inside of a certain element. To figure that out, let's quicky discuss how broswer events are processed. When you click on a part of a web page, that click is recognized first by the most deeply nested element--say a paragraph or even a span tag--in the spot where you clicked. Then the event is processed by that element's parent element and then the parent element's parent element. The event continues bubbling upwards until it reaches the root of the document. This gives every single element inside which this click happened a chance to run any event handlers it may have. 
+Though nominally, we want to dismiss the modal when the user clicks or taps the scrim, we actually just care if they tap anywhere outside of our modal. So how do we detect a click that is NOT inside of a certain element. To figure that out, let's quickly discuss how browser events are processed. When you click on a part of a web page, that click is recognized first by the most deeply nested element--say a paragraph or even a span tag--in the spot where you clicked. Then the event is processed by that element's parent element and then the parent element's parent element. The event continues bubbling upwards until it reaches the root of the document. This gives every single element inside which this click happened a chance to run any event handlers it may have. 
 
-The DOM exposes a really cool property that we can hook into from this event bubbling process: `event.target.closest()`. As an event propagates from its most deeply nested element all the way out to the root of the document, `.closest()` will return the first instance of whatever selector you request that the event bubbles through. If the event doesn't bubble through anything matching that selector, `.closest()` returns `null`. We're going to look for a `null` return to determine that a click has occured outside of our Modal element. Sort of hard to explain in concept, so let's see it in action. 
+The DOM exposes a really cool property that we can hook into from this event bubbling process: `event.target.closest()`. As an event propagates from its most deeply nested element all the way out to the root of the document, `.closest()` will return the first instance of whatever selector you request that the event bubbles through. If the event doesn't bubble through anything matching that selector, `.closest()` returns `null`. We're going to look for a `null` return to determine that a click has occurred outside of our Modal element. Sort of hard to explain in concept, so let's see it in action. 
 
-As with our last step, this is something I use so commonly in apps that I always make a custom, resusable hook that tons of components can take advantage of. Let's create a new file in our `hooks` directory called `useOutsideClick`:
+As with our last step, this is something I use so commonly in apps that I always make a custom, reusable hook that tons of components can take advantage of. Let's create a new file in our `hooks` directory called `useOutsideClick`:
 
 ```
 // hooks/useOutsideClick.js
@@ -358,7 +359,7 @@ import useOutsideClick from '../hooks/useOutsideClick';
 And implement it just under where we call our other two hooks:
 
 ```
-useOutsideClick('.Modal__content', onDimsiss);
+useOutsideClick('.Modal__content', onDismiss);
 ```
 
 Spin her up and check it out. Well, congratulations, and nice work! You've now built a robust, accessible modal component that provides a very friendly experience for all users in the varying ways that people consume the web. If you're interested in a bonus, please read our final section.

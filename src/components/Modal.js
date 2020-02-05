@@ -1,16 +1,11 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import useModal from '../hooks/useModal';
 
 export default function Modal({ onDismiss, children }) {
-  const closeButton = useRef();
-  useModal(closeButton, '.Modal__content', onDismiss);
-
   return (
     <div className="Modal__scrim">
       <div className="Modal__content">
         <button
-          ref={closeButton}
           type="button"
           aria-label="Close Modal"
           title="Close Modal"

@@ -64,8 +64,7 @@ git clone https://github.com/brian-ogilvie/accessibility-article.git && cd acces
 Once that's done, let's check out the starter branch and fire up the dev server:
 
 ```
-git checkout --track origin/starter
-yarn start
+git checkout --track origin/starter && yarn start
 ```
 
 You can view the app in your browser at `localhost:1234`.

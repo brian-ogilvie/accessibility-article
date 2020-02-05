@@ -47,8 +47,9 @@ You can read more about how to configure your `.eslintrc` for A11Y alone [here](
 A lot of people who are much smarter than I am have been working on web accessibility for a long time. As developers, we should stand on the shoulders of giants. To that end, we ought not make our lives harder by trying to reinvent the wheel in our apps. Use the html elements that have been gifted to us. Here are a few rules to keep in mind:
 
 - Headers (`h1`, `h2`, `h3`, etc.) should be used in descending order of importance and should never skip levels. Don't simply rely on font size to convey importance, because screen readers can't see that. The tags matter. My site name is an `h1`. Each page heading is an `h2`. Sections begin with an `h3`. You get the picture.
+- Images contain `alt` tags. All images. Images that are purely decorative--unimportant for the understanding of the page content--should have an empty `alt` tag: `alt=""`. Also, don't include words like "image" or "picture" in the alt tag, as this is redundant. Think more about what the image is meant to convey, e.g. "Me consuming an entire large pizza."
 - Use the right element for the job. If you need a button, use a `<button>`. Don't use a clickable `<div>`. This seems obvious, but you'd be amazed how often I see this done. More on this later.
-- All interactive elements on your page (buttons, links, menus, etc.) must be accessible using the keyboard only, i.e. without a mouse or trackpad. This goes hand in hand with the previous rule. If you use the wrong tags, you will have mountains of work to do, in order to make your app keyboard accessible. With the right tags, this takes care of itself. 
+- All interactive elements on your page (buttons, links, menus, etc.) must be accessible using the keyboard only, i.e. without a mouse or trackpad. This goes hand in hand with the previous rule. If you use the wrong tags, you will have mountains of work to do, in order to make your app keyboard accessible. With the right tags, this takes care of itself.
 
 If you remember these three things, you'll be amazed how accessible your app suddenly becomes.
 
@@ -116,6 +117,12 @@ export default function InfoButton({ onClick }) {
 
 Go ahead and test it out in the browser. No mouse allowed! Works perfectly! Buttons, right out of the box, give us keyboard fucus and can be triggered by the `Enter` or `space` key. There is no reason that we, as developers, should waste our time reinventing this behavior. If you take nothing else away from this article, remember this: **If it seems hard to provide accessibility for your site interactions, there's a good chance you're doing it wrong.**
 
+One more thing we could do here--because the button doesn't actually contain any text--is to add an `aria-label` so that screen readers can tell users what this button will do:
+
+```
+<button aria-label="More Info" type="button" className="InfoButton" onClick={onClick}>
+```
+
 ## A More Complex Problem
 
 So now that we've solved something simple, let's move ahead and build out our info modal. Instead of building it first and then circling back to make sure it's accessible, we're going to take the far easier path and consider accessibility before we write a single line of code. 
@@ -126,7 +133,7 @@ Description:
 
 - A modal appears in front of app content.
 - A modal disables all app functionality while visible.
-- A modal on screen until confirmed, dismissed, or a required action has been taken.
+- A modal remains on screen until confirmed, dismissed, or a required action has been taken.
 - Surfaces behind the modal are scrimmed, making content on the surface less prominent.
 
 Modals can be dismissed by:
@@ -144,7 +151,7 @@ Alright, with all of that in mind, let's build it.
 
 ## Step 1: Structure our Modal Component
 
-The actual DOM structure of our component is dead simple. We'll have a scrim div that is fixed position, covering the whole window. Inside that, we'll have a container that provides the shape of the modal itself. The container will have a Close button and a spot for rendering children. That's all our Modal component will really have. It's only props are and `onDismiss`, which it will pass to the Close button's `onClick` method and the aforementioned `children` or content. By the way, if you're not familiar with the concept of children props in React, `children` is a reserved prop in React that represents anything between a component's opening and closing tags. For instance: 
+The actual DOM structure of our component is dead simple. We'll have a scrim div that is fixed position, covering the whole window. Inside that, we'll have a container that provides the shape of the modal itself. The container will have a Close button and a spot for rendering children. That's all our Modal component will really have. Its only props are an `onDismiss` function--which it will pass to the Close button's `onClick` method--and the aforementioned `children` or content. By the way, if you're not familiar with the concept of children props in React, `children` is a reserved prop in React that represents anything between a component's opening and closing tags. For instance: 
 
 
 ```
@@ -198,7 +205,7 @@ From here on out, let's agree to something: We will only interact with our app, 
 
 Oops.
 
-See the problem? Our keyboard focus isn't where it belongs. It's stuck in the underlying app content. As you press TAB, you don't get the close button, you have to first tab through all of the links in the footer. Imagine if our page was super complicated, with a bunch of links, menus, and buttons. That would take forever. If you were a user who relied on your keyboard without a mouse, you'd be pretty annoyed right now. Worse, if you relied on a screen reader (i.e. you couldn't actually see the page), you would have no way of knowing that this modal even existed right now. Your screen ready would go right on traversing the DOM as though nothing had changed. 
+See the problem? Our keyboard focus isn't where it belongs. It's stuck in the underlying app content. As you press TAB, you don't get the close button. You have to first tab through all of the links in the footer. Imagine if our page was super complicated, with a bunch of links, menus, and buttons. That would take forever. If you were a user who relied on your keyboard without a mouse, you'd be pretty annoyed right now. Worse, if you relied on a screen reader (i.e. you couldn't actually see the page), you would have no way of knowing that this modal even existed right now. Your screen reader would go right on traversing the DOM as though nothing had changed. 
 
 To fix this issue, it's time to write our first custom hook. First, if it doesn't already exist, create a `hooks` directory inside of `src`:
 
@@ -208,7 +215,7 @@ mkdir src/hooks
 
 Inside our hooks directory, let's create a new file called `useFocusTransfer.js`. To build this hook, we're going to take advantage of React's `useEffect` hook. `useEffect` allows us to perform a side effect in our app when certain conditions are met or when certain dependencies change. 
 
-This hook will take as it's only argument, a `ref` for the button we would like to move focus onto (more on this later). It will return nothing, simply performing our desired side effects. Here it is:
+This hook will take as its only argument, a `ref` for the button we would like to move focus onto (more on this later). It will return nothing, simply performing our desired side effects. Here it is:
 
 ```
 // hooks/useFocusTransfer.js
@@ -274,7 +281,7 @@ Now if you run this in your browser, you should see the focus automatically shif
 
 ## Step 3: Dismiss on Escape
 
-This step is incredibly simple, requiring only a few lines of code. But because it's so common in an app (the need to dismiss a popup, menu, dropdown, alert, etc. when the escape button is pushed), that I always write a custom hook for it, and just use that everywhere and save myself some typing. Hooks are awesome, by the way.
+This step is incredibly simple, requiring only a few lines of code. But because it's so common in an app (the need to dismiss a popup, menu, dropdown, alert, etc. when the escape button is pushed), I always write a custom hook for it and just use that everywhere to save myself some typing. Hooks are awesome, by the way.
 
 Let's create a new file `hooks/useEscapeHandler.js`, and write our hook:
 
@@ -296,9 +303,9 @@ export default function useEscapeHandler(onEscape) {
 }
 ```
 
-When the component using this hook mounts, we attach a `keydown` event listener to the browser window. When a key is pressed, if that key is `Escape`, we execute whatever onEscape function was passed into our hook. In our case, that function will be dismissing the modal. When our component unmounts, `useEffect` removes our event listener from the window.
+When the component using this hook mounts, we attach a `keydown` event listener to the browser window. When a key is pressed, if that key is `Escape`, we execute whatever onEscape function was passed into our hook. In our case, that function will be dismissing the modal. When our component unmounts, `useEffect` removes our event listener from the window as cleanup.
 
-What is `useCallback`, and why are we using it? This is a performance booster that React offers. It allows us essentially to memoize the definition of a function so that it doesn't get redefined as a new object every time this hook is called. That may seem like a small boost, but in this case it really matters. Our `useEffect` hook will have to run again, removing our window event listener and adding a new one, every time `handleEscape` is redefined. Because interacting with the DOM is the slowest part of most web applications, we really don't want to do this any more than is absolutely necessary. Imagine this hook being used inside a component that also has a form inside it. That component's state will constantly be updating as the user types into the form, which will call our hook again and again. On every single keystroke, the window will have event listeners added and removed. This will absolutely murder the performance of your app. Don't be that guy. Use `useCallback`. PSA over. 
+What is `useCallback`, and why are we using it? This is a performance booster that React offers. It allows us essentially to memoize the definition of a function so that it doesn't get redefined as a new object every time this hook is called. That may seem like a small boost, but in this case it really matters. Our `useEffect` hook will have to run again, removing our window event listener and adding a new one, every time `handleEscape` is redefined. Because interacting with the DOM is the slowest part of most web applications, we really don't want to do this any more than is absolutely necessary. Imagine this hook being used inside a component that also has a form inside it. That component's state will constantly be updating as the user types into the form, which will call our hook again and again. On every single keystroke, the window will have event listeners added and removed. This will absolutely murder the performance of your app. Don't be the guy who tanks the app because of an escape key. Use `useCallback`. PSA over. 
 
 Let's add our new escape handler to our modal. In `Modal.js`, add this as your fourth import:
 
@@ -317,13 +324,13 @@ Check it out in the browser. Working? Nice!
 
 ## Step 4: Dismiss on Clicking the Scrim
 
-One could make the argument that this is not strictly an accessibility issue, but it does make for a much nicer experience for all users, especially users on a mobile device who don't want to have to reach their thumbs all the way up to the close button. And that's really what accessibility is all about: making a better experience for all users. 
+One could make the argument that this is not strictly an accessibility issue, but it does make for a much nicer experience for all users, especially users on a mobile device who don't want to reach their thumbs all the way up to the Close button. And that's really what accessibility is all about: making a better experience for all users. 
 
 Though nominally, we want to dismiss the modal when the user clicks or taps the scrim, we actually just care if they tap anywhere outside of our modal. So how do we detect a click that is NOT inside of a certain element. To figure that out, let's quickly discuss how browser events are processed. When you click on a part of a web page, that click is recognized first by the most deeply nested element--say a paragraph or even a span tag--in the spot where you clicked. Then the event is processed by that element's parent element and then the parent element's parent element. The event continues bubbling upwards until it reaches the root of the document. This gives every single element inside which this click happened a chance to run any event handlers it may have. 
 
-The DOM exposes a really cool property that we can hook into from this event bubbling process: `event.target.closest()`. As an event propagates from its most deeply nested element all the way out to the root of the document, `.closest()` will return the first instance of whatever selector you request that the event bubbles through. If the event doesn't bubble through anything matching that selector, `.closest()` returns `null`. We're going to look for a `null` return to determine that a click has occurred outside of our Modal element. Sort of hard to explain in concept, so let's see it in action. 
+The DOM exposes a really cool property that we can hook into from this event bubbling process: `event.target.closest()`. As an event propagates from its most deeply nested element all the way out to the root of the document, `.closest()` will return the first instance that the event bubbles through of whatever selector you request. If the event doesn't bubble through anything matching that selector, `.closest()` will return `null`. We're going to look for a `null` return to determine that a click has occurred outside of our Modal element. Sort of hard to explain in concept, so let's see it in action. 
 
-As with our last step, this is something I use so commonly in apps that I always make a custom, reusable hook that tons of components can take advantage of. Let's create a new file in our `hooks` directory called `useOutsideClick`:
+As with our last step, this is something I use so commonly in apps that I always make a custom, reusable hook that tons of components can take advantage of. Let's create a new file in our `hooks` directory called `useOutsideClick.js`:
 
 ```
 // hooks/useOutsideClick.js
@@ -346,7 +353,7 @@ export default function useOutsideClick(selector, onOutsideClick) {
 }
 ```
 
-This is very similar in structure to our `useEscapeHandler` hook. The difference is in the body of our event handler function. We check whether `.closest()` returns `null` for our given selector. If so, the click has not occured inside that selector, so we execute the `outOutsideClick` function that we are given. 
+This is very similar in structure to our `useEscapeHandler` hook. The difference is in the body of our event handler function. We check whether `.closest()` returns `null` for our given selector. If so, the click has not occured inside that selector, so we execute the `onOutsideClick` function that we are given. 
 
 What is this `selector` we keep talking about? In our case, it will be the CSS class name of the div containing our modal content: `.Modal__content`. And we will pass in the function to dismiss the modal as the argument for `onOutsideClick`. Let's see how we use this in our Modal component. 
 
@@ -366,7 +373,7 @@ Spin her up and check it out. Well, congratulations, and nice work! You've now b
 
 ## Step 5: Code Cleanup
 
-If you've read any of my other artiles, you know that I'm a big fan of keeping React components concerned with presentation only. I don't want them performing a bunch of logic; I just want them to do their small part of displaying the current state of the app. This has never been more possible than it is now with React hooks. We've done a pretty good job so far in abstracting out our logic from the component. But I can't help thinking: What if I want to design a different modal for some other part of my app? I don't know. One with a pink border and a dancing unicorn animation over the scrim. When I build out that component, I will have to remember to import three separate hooks and use them correctly. What if I'm not the developer doing this? Some other developer will have to research the rules of how a modal is supposed to behave and then spend a bunch of time in our component understanding how to build it, and what the hooks do. You get the idea. 
+If you've read any of my other articles, you know that I'm a big fan of keeping React components concerned with presentation only. I don't want them performing a bunch of logic; I just want them to do their small part of displaying the current state of the app. This has never been more possible than it is now with React hooks. We've done a pretty good job so far in abstracting out our logic from the component. But I can't help thinking: What if I want to design a different modal for some other part of my app? I don't know. One with a pink border and a dancing unicorn animation over the scrim. When I build out that component, I will have to remember to import three separate hooks and use them correctly. What if I'm not the developer doing this? Some other developer will have to research the rules of how a modal is supposed to behave and then spend a bunch of time in THIS component understanding how it was built, and what the hooks do. You get the idea. 
 
 Wouldn't it be great if there was just one hook that encapsulated everything a modal component is supposed to do and if we could just use that one hook for any modal component we ever decide to build? I think so. Let's make one really quickly. Create a new file `hooks/useModal.js`. This hook is simply going to be a composition of the three hooks we already wrote:
 
@@ -400,7 +407,7 @@ export default function Modal({ onDismiss, children }) {
         <button
           ref={closeButton}
           type="button"
-          alt="Close Modal"
+          aria-label="Close Modal"
           title="Close Modal"
           className="close-button"
           onClick={onDismiss}
@@ -414,9 +421,9 @@ export default function Modal({ onDismiss, children }) {
 }
 ```
 
-This may seem like an insignificant change, but it will make the live's of your team members much easier as your app grows and as new team members come on board. 
+This may seem like an insignificant change, but it will make the lives of your team members much easier as your app grows and as new team members come on board. 
 
-Thanks for reading today! If you take nothing else away, please remember this: Considering accessibility as you build your app ultimately makes the user experience better for all your users. Now, go forth, and make the web awesome!
+Thanks for reading today! As a final thought, please remember this: Considering accessibility as you build your app ultimately makes the experience better for ALL your users. Now, go forth, and make the web awesome!
 
 ## Notes:
 

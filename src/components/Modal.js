@@ -12,7 +12,7 @@ export default function Modal({ onDismiss, children }) {
         <button
           ref={closeButton}
           type="button"
-          alt="Close Modal"
+          aria-label="Close Modal"
           title="Close Modal"
           className="close-button"
           onClick={onDismiss}

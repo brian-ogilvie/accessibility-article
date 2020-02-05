@@ -114,7 +114,7 @@ export default function InfoButton({ onClick }) {
 }
 ```
 
-Go ahead and test it out in the browser. No mouse allowed! Works perfectly! Buttons, right out of the box, give us keyboard fucus and can be triggered by the `Enter` or `space` key. There is no reason that we, as developers, should waste our time reinventing this behavior. If you take nothing else away from this article, remember this: **If it seems hard to provide accessibility for your site interactions, there's a good chance you're doing it wrong.**
+Go ahead and test it out in the browser. No mouse allowed! Works perfectly! Buttons, right out of the box, give us keyboard focus and can be triggered by the `Enter` or `space` key. There is no reason that we, as developers, should waste our time reinventing this behavior. If you take nothing else away from this article, remember this: **If it seems hard to provide accessibility for your site interactions, there's a good chance you're doing it wrong.**
 
 One more thing we could do here--because the button doesn't actually contain any text--is to add an `aria-label` so that screen readers can tell users what this button will do:
 
@@ -230,7 +230,7 @@ export default function useFocusTransfer(transferToRef) {
 }
 ```
 
-If you've never interacted with refs in React before, here are the basics. A `ref` gives us access to the actual html element that is painted to the DOM as a result of our React rendering code. The ref itself contains a `current` property that represents the DOM element. We use refs very sparingly because we usually want to let React handle all DOM querying and manipulation behind the scenes while we declaratively describe how the DOM should look, using JSX. However sometimes--now, for instance--we really do need a pointer to this button in the DOM becuase the `focus` method we want to call only exists on DOM nodes. It's important to note that the `current` property of our ref will be null until the DOM has been painted for the first time. That's why we need to check whether `transferToRef.current` exists before attempting to call the `.focus()` method. We add `transferToRef.current` to our `useEffect` dependency array, so that this hook will run as soon as that value changes. 
+If you've never interacted with refs in React before, here are the basics. A `ref` gives us access to the actual html element that is painted to the DOM as a result of our React rendering code. The ref itself contains a `current` property that represents the DOM element. We use refs very sparingly because we usually want to let React handle all DOM querying and manipulation behind the scenes while we declaratively describe how the DOM should look, using JSX. However sometimes--now, for instance--we really do need a pointer to this button in the DOM because the `focus` method we want to call only exists on DOM nodes. It's important to note that the `current` property of our ref will be null until the DOM has been painted for the first time. That's why we need to check whether `transferToRef.current` exists before attempting to call the `.focus()` method. We add `transferToRef.current` to our `useEffect` dependency array, so that this hook will run as soon as that value changes. 
 
 Now let's implement our new custom hook and put it to use in our Modal component. Back in `Modal.js`, we'll need our hook and also `useRef`. Edit the first line to be:
 
@@ -352,7 +352,7 @@ export default function useOutsideClick(selector, onOutsideClick) {
 }
 ```
 
-This is very similar in structure to our `useEscapeHandler` hook. The difference is in the body of our event handler function. We check whether `.closest()` returns `null` for our given selector. If so, the click has not occured inside that selector, so we execute the `onOutsideClick` function that we are given. 
+This is very similar in structure to our `useEscapeHandler` hook. The difference is in the body of our event handler function. We check whether `.closest()` returns `null` for our given selector. If so, the click has not occurred inside that selector, so we execute the `onOutsideClick` function that we are given. 
 
 What is this `selector` we keep talking about? In our case, it will be the CSS class name of the div containing our modal content: `.Modal__content`. And we will pass in the function to dismiss the modal as the argument for `onOutsideClick`. Let's see how we use this in our Modal component. 
 
